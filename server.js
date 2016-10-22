@@ -10,9 +10,18 @@ const mime = require('mime-types')
 const FILE_DIR = 'path/to'
 
 function setHeaders(res, data) {
-  
   res.setHeader('Content-Length', data.length)
   res.setHeader('Content-Type', mime.lookup(data))
+}
+
+async function sendHeaders(req, res) {
+  const filePath = path.join(__dirname, FILE_DIR, req.url)
+  const data = await fs.readFile(filePath).catch((err) => {
+    if (!err) {
+      setHeaders(res, data)
+    }
+  })
+  res.end()
 }
 
 async function read(req, res) {
@@ -32,6 +41,18 @@ async function read(req, res) {
   }
 }
 
+async function create(req, res) {
+  const filePath = path.join(__dirname, FILE_DIR, req.url)
+  await fs.open(filePath, 'wx').catch((err) => {
+    if (err.code === 'EEXIST') {
+      res.end('File already existed')
+    } else {
+      res.end(err.toString())
+    }
+  })
+  res.end()
+}
+
 async function initialize() {
   const app = express()
   app.use((req, res, next) => {
@@ -44,7 +65,8 @@ async function initialize() {
 
   const PORT = 8000
   app.get('*', read)
-  app.head()
+  app.head('*', sendHeaders)
+  app.put('*', create)
 
   app.listen(PORT);
   console.log(`LISTENING @ http://127.0.0.1:${PORT}`)

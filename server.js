@@ -62,7 +62,18 @@ async function update(req, res) {
     } else {
       res.end(err.toString())
     }
-    console.log(err.stack)
+  })
+  res.end()
+}
+
+async function remove(req, res) {
+  const filePath = path.join(__dirname, FILE_DIR, req.url)
+  await fs.unlink(filePath).catch((err) => {
+    if (err.code === 'ENOENT') {
+      res.end('File not found')
+    } else {
+      res.end(err.toString())
+    }
   })
   res.end()
 }
@@ -82,6 +93,7 @@ async function initialize() {
   app.head('*', sendHeaders)
   app.put('*', create)
   app.post('*', bodyParser.raw({type: '*/*'}), update)
+  app.delete('*', remove)
 
   app.listen(PORT);
   console.log(`LISTENING @ http://127.0.0.1:${PORT}`)

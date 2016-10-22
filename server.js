@@ -6,6 +6,7 @@ const express = require('express')
 const path = require('path')
 const trycatch = require('trycatch')
 const mime = require('mime-types')
+const bodyParser = require('body-parser')
 
 const FILE_DIR = 'path/to'
 
@@ -53,6 +54,19 @@ async function create(req, res) {
   res.end()
 }
 
+async function update(req, res) {
+  const filePath = path.join(__dirname, FILE_DIR, req.url)
+  await fs.writeFile(filePath, req.body).catch((err) => {
+    if (err.code === 'ENOENT') {
+      res.end('File not found')
+    } else {
+      res.end(err.toString())
+    }
+    console.log(err.stack)
+  })
+  res.end()
+}
+
 async function initialize() {
   const app = express()
   app.use((req, res, next) => {
@@ -67,6 +81,7 @@ async function initialize() {
   app.get('*', read)
   app.head('*', sendHeaders)
   app.put('*', create)
+  app.post('*', bodyParser.raw({type: '*/*'}), update)
 
   app.listen(PORT);
   console.log(`LISTENING @ http://127.0.0.1:${PORT}`)

@@ -7,18 +7,41 @@ const path = require('path')
 const trycatch = require('trycatch')
 const mime = require('mime-types')
 const bodyParser = require('body-parser')
+const archiver = require('archiver')
+const rimraf = require('rimraf')
 
 const FILE_DIR = 'path/to'
 
-function setHeaders(res, data) {
-  res.setHeader('Content-Length', data.length)
-  res.setHeader('Content-Type', mime.lookup(data))
+function fileExist(req, res, next) {
+  const filePath = path.join(__dirname, FILE_DIR, req.url)
+  const data = fs.stat(filePath).catch((err) => {
+    if (err) {
+      res.sendStatus(404).end('File not found')
+    }
+  })
+  if (data) {
+    next()
+  }
+}
+
+function getArchive(res, filePath) {
+  const archive = archiver('zip')
+  archive.pipe(res)
+  archive.directory(filePath, '', { name: 'ok'})
+  archive.finalize()
+}
+
+function setHeaders(res, filePath) {
+  res.setHeader('Content-Length', filePath.length)
+  res.setHeader('Content-Type', mime.lookup(filePath))
 }
 
 async function sendHeaders(req, res) {
   const filePath = path.join(__dirname, FILE_DIR, req.url)
   const data = await fs.readFile(filePath).catch((err) => {
-    if (!err) {
+    if (err) {
+      res.end(err.message)
+    } else {
       setHeaders(res, data)
     }
   })
@@ -27,18 +50,19 @@ async function sendHeaders(req, res) {
 
 async function read(req, res) {
   const filePath = path.join(__dirname, FILE_DIR, req.url)
-  const data = await fs.readFile(filePath).catch((err) => {
-    if (err.code === 'ENOENT') {
-      res.end('File not found')
-    } else if (err.code === 'EISDIR') {
-      res.end('Directory not found')
-    } else {
-      res.end(err.toString())
+  const stat = await fs.stat(filePath)
+  if (stat.isDirectory()) {
+    getArchive(res, filePath)
+  } else {
+    const data = await fs.readFile(filePath).catch((err) => {
+      if (err) {
+        res.end(err.toString())
+      }
+    });
+    if (data) {
+      setHeaders(res, filePath)
+      res.send(data);
     }
-  })
-  if (data) {
-    setHeaders(res, data)
-    res.end(data.toString())
   }
 }
 
@@ -57,9 +81,7 @@ async function create(req, res) {
 async function update(req, res) {
   const filePath = path.join(__dirname, FILE_DIR, req.url)
   await fs.writeFile(filePath, req.body).catch((err) => {
-    if (err.code === 'ENOENT') {
-      res.end('File not found')
-    } else {
+    if (err) {
       res.end(err.toString())
     }
   })
@@ -68,14 +90,13 @@ async function update(req, res) {
 
 async function remove(req, res) {
   const filePath = path.join(__dirname, FILE_DIR, req.url)
-  await fs.unlink(filePath).catch((err) => {
-    if (err.code === 'ENOENT') {
-      res.end('File not found')
-    } else {
+  await rimraf(filePath, (err) => {
+    if (err) {
       res.end(err.toString())
+    } else {
+      res.end()
     }
   })
-  res.end()
 }
 
 async function initialize() {
@@ -89,11 +110,11 @@ async function initialize() {
   })
 
   const PORT = 8000
-  app.get('*', read)
-  app.head('*', sendHeaders)
+  app.get('*', fileExist, read)
+  app.head('*', fileExist, sendHeaders)
   app.put('*', create)
-  app.post('*', bodyParser.raw({type: '*/*'}), update)
-  app.delete('*', remove)
+  app.post('*', fileExist, bodyParser.raw({type: '*/*'}), update)
+  app.delete('*', fileExist, remove)
 
   app.listen(PORT);
   console.log(`LISTENING @ http://127.0.0.1:${PORT}`)

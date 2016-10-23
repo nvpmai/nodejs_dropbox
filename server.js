@@ -24,18 +24,6 @@ async function sendHeaders(req, res) {
   res.end()
 }
 
-async function create(req, res) {
-  const filePath = path.join(__dirname, FILE_DIR, req.url)
-  await fs.open(filePath, 'wx').catch((err) => {
-    if (err.code === 'EEXIST') {
-      res.end('File already existed')
-    } else {
-      res.end(err.toString())
-    }
-  })
-  res.end()
-}
-
 async function remove(req, res) {
   const filePath = path.join(__dirname, FILE_DIR, req.url)
   await rimraf(filePath, (err) => {
@@ -50,6 +38,7 @@ async function remove(req, res) {
 const app = express()
 app.use(require('./routes/get'))
 app.use(require('./routes/post'))
+app.use(require('./routes/put'))
 
 app.use((req, res, next) => {
   trycatch(next, e => {
@@ -62,7 +51,6 @@ app.use((req, res, next) => {
 const PORT = 8000
 
 // app.head('*', fileExist, sendHeaders)
-// app.put('*', create)
 // app.delete('*', fileExist, remove)
 
 app.listen(PORT)

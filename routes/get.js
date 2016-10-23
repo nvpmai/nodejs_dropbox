@@ -15,24 +15,35 @@ function getArchive(res, filePath) {
   archive.finalize()
 }
 
-async function read(req, res) {
+async function readFolder(req, res, next) {
   const filePath = path.join(__dirname, FILE_DIR, req.url)
   const stat = await fs.stat(filePath)
   if (stat.isDirectory()) {
-    getArchive(res, filePath)
-  } else {
-    const data = await fs.readFile(filePath).catch((err) => {
-      if (err) {
-        res.end(err.toString())
-      }
-    });
-    if (data) {
-      tools.setHeaders(res, filePath)
-      res.send(data);
+    if (['application/x-gtar', 'application/zip', 'application/gzip'].indexOf(req.get('Accept')) > -1) {
+      getArchive(res, filePath)
+    } else {
+      const data = fs.readdir(filePath)
+      const files = await data
+      res.json(files).end()
     }
+  } else {
+    next()
   }
 }
 
-router.get('*', tools.fileExist, read)
+async function readFile(req, res) {
+  const filePath = path.join(__dirname, FILE_DIR, req.url)
+  const data = await fs.readFile(filePath).catch((err) => {
+    if (err) {
+      res.end(err.toString())
+    }
+  });
+  if (data) {
+    tools.setHeaders(res, filePath)
+    res.send(data);
+  }
+}
+
+router.get('*', tools.fileExist, readFolder, readFile)
 
 module.exports = router

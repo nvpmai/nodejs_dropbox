@@ -6,7 +6,7 @@ const express = require('express')
 
 const router = express.Router()
 
-const FILE_DIR = '../path/to'
+const FILE_DIR = '../server'
 
 function getArchive(res, filePath) {
   const archive = archiver('zip')
@@ -17,6 +17,7 @@ function getArchive(res, filePath) {
 
 async function readFolder(req, res, next) {
   const filePath = path.join(__dirname, FILE_DIR, req.url)
+  console.log(filePath)
   const stat = await fs.stat(filePath)
   if (stat.isDirectory()) {
     if (['application/x-gtar', 'application/zip', 'application/gzip'].indexOf(req.get('Accept')) > -1) {

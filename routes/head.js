@@ -5,7 +5,7 @@ const express = require('express')
 
 const router = express.Router()
 
-const FILE_DIR = 'path/to'
+const FILE_DIR = '../server'
 
 async function sendHeaders(req, res) {
   const filePath = path.join(__dirname, FILE_DIR, req.url)

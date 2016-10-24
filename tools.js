@@ -2,7 +2,7 @@ const fs = require('fs').promise
 const mime = require('mime-types')
 const path = require('path')
 
-const FILE_DIR = 'path/to'
+const FILE_DIR = 'server'
 
 module.exports = {
   fileExist: async (req, res, next) => {

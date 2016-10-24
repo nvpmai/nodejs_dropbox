@@ -5,7 +5,7 @@ const bodyParser = require('body-parser')
 
 const router = express.Router()
 
-const FILE_DIR = '../path/to'
+const FILE_DIR = '../server'
 
 function createFolder(req, res, next) {
   if (req.url.slice(-1) === '/') {

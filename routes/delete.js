@@ -4,7 +4,7 @@ const rimraf = require('rimraf')
 
 const router = express.Router()
 
-const FILE_DIR = '../path/to'
+const FILE_DIR = '../server'
 
 async function remove(req, res) {
   const filePath = path.join(__dirname, FILE_DIR, req.url)

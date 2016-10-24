@@ -42,7 +42,9 @@
     "json-socket": "*", 
     "chokidar": "*", 
     "nssocket": "*",
-    "yargs": "*"
+    "yargs": "*",
+    "unzip": "*",
+    "request": "*"
   },
   "devDependencies": {
     "rimraf": "^2.5.4",

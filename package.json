@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "nodemon  --exec babel-node server.js",
+    "client": "nodemon  --exec babel-node client.js",
     "once": "babel-node -- ./",
     "test": "mocha --compilers js:babel-register test/spec",
     "dev": "run-p start watch:test watch:lint",
@@ -38,7 +39,12 @@
     "songbird": "^1.0.4",
     "trycatch": "^1.5.21",
     "archiver": "^1.1.0",
-    "json-socket": "*"
+    "json-socket": "*", 
+    "chokidar": "*", 
+    "nssocket": "*",
+    "yargs": "*",
+    "unzip": "*",
+    "request": "*"
   },
   "devDependencies": {
     "rimraf": "^2.5.4",

@@ -2,8 +2,9 @@ require('./helper')
 const express = require('express')
 const trycatch = require('trycatch')
 const watchFile = require('./watchFile')
+const nssocket = require('nssocket')
 
-async function initialize(name, port) {
+async function initialize(ownerName, dir, port) {
   const app = express()
   app.use(require('./routes/get'))
   app.use(require('./routes/post'))
@@ -18,9 +19,13 @@ async function initialize(name, port) {
     })
   })
 
-  watchFile(name)
+  const socket = new nssocket.NsSocket({
+    reconnect: true
+  })
+
+  watchFile(dir, socket)
   app.listen(port)
-  console.log(`${name} is listening at port ${port}`)
+  console.log(`${ownerName} is listening at port ${port}`)
 }
 
 module.exports = initialize

@@ -1,3 +1,3 @@
 const initialize = require('./initialize')
 
-initialize('Mai', 8001)
+initialize('Dan', 'clients/Dan', 8001)

@@ -2,4 +2,4 @@
 
 const initialize = require('./initialize')
 
-initialize('Server', 8000)
+initialize('Server', 'server', 8000)

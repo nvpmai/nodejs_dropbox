@@ -18,9 +18,7 @@ async function getFileAtStart() {
       Accept: 'application/x-gtar'
     }
   }
-  request(options, (err, res, data) => {
-    unzip.Extract({ path: 'client/' })
-  })
+  request(options).pipe(unzip.Extract({ path: 'client/' }))
 }
 
 async function handleData(data) {

@@ -35,8 +35,7 @@ Time spent: 20 hours
 
 ## Walkthrough
 
-`<Add your Walkthrough Gif here (by updating the image URL)>`
-![Video Walkthrough](...)
+![Video Walkthrough](https://github.com/nvpmai95/nodejs_dropbox/blob/master/gifs/http_methods.gif)
 
 
 

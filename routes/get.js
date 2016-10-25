@@ -1,5 +1,5 @@
-const tools = require('../tools');
-const archiver = require('archiver')
+const tools = require('../tools')
+const zipFolder = require('zip-folder')
 const path = require('path')
 const fs = require('fs').promise
 const express = require('express')
@@ -9,10 +9,12 @@ const router = express.Router()
 const FILE_DIR = '../server'
 
 function getArchive(res, filePath) {
-  const archive = archiver('zip')
-  archive.pipe(res)
-  archive.directory(filePath, '', { name: 'ok'})
-  archive.finalize()
+  const result = 'result.zip'
+  const resultPath = path.join(__dirname, '../client', result)
+  zipFolder(filePath, resultPath, (err) => {
+    res.pipe(resultPath)
+  })
+  res.end()
 }
 
 async function readFolder(req, res, next) {

@@ -5,7 +5,6 @@ const express = require('express')
 const trycatch = require('trycatch')
 const watchFile = require('./watchFile')
 const nssocket = require('nssocket')
-const path = require('path')
 
 async function initialize(myPort, otherPort) {
   const app = express()
@@ -22,11 +21,9 @@ async function initialize(myPort, otherPort) {
       res.writeHead(500)
     })
   })
-
   const socket = new nssocket.NsSocket({
     reconnect: true
   })
-
   watchFile(('server'), socket, otherPort)
   app.listen(myPort)
   console.log(`Server is listening at port ${myPort}`)
